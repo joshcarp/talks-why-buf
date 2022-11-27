@@ -62,9 +62,9 @@ by putting this in `config.toml`:
 {{< highlight toml "style=github" >}}
 
 # use Hugo's hl in markdown (with or without a language tag)
-pygmentsCodefences = true
-pygmentsCodefencesGuessSyntax = true
-pygmentsStyle = "github"
+[markup.highlight]
+codeFences = true
+style = "github"
 
 {{< /highlight >}}
 

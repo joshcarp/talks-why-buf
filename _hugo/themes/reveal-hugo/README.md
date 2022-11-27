@@ -9,6 +9,8 @@ A Hugo theme for [Reveal.js](https://revealjs.com/) that makes authoring and cus
 
 ![screenshot of reveal-hugo](https://github.com/dzello/reveal-hugo/blob/master/images/screenshot.png?raw=true)
 
+⚠️ The latest version of this theme requires hugo version >= v0.93.0. If you need compatibility with an earlier version, try a previous release.
+
 ## Example
 
 Using reveal-hugo, presentations with multiple slides can be created with just one markdown file, like so:
@@ -51,6 +53,7 @@ Jump to the [exampleSite](exampleSite) folder in this repository to see the sour
 - [template-example](https://reveal-hugo.dzello.com/template-example/) - An example of using the slide shortcode with powerful templates
 - [bundle-example](https://reveal-hugo.dzello.com/bundle-example/) - An example of creating a presentation from one or more markdown files in a leaf bundle
 - [hugo-hl-example](https://reveal-hugo.dzello.com/hugo-hl-example/) - An example of using Hugo's compile-time syntax highlighter
+- [highlightjs-linenumbers-example](https://reveal-hugo.dzello.com/highlightjs-linenumbers-example/) - An example of using the multiline and multi-step capabilities of highlight.js
 
 ### Starter repository
 
@@ -90,6 +93,9 @@ Open `config.toml` and add the following contents:
 
 ```toml
 theme = "reveal-hugo"
+
+[markup.goldmark.renderer]
+unsafe = true
 
 [outputFormats.Reveal]
 baseName = "index"
@@ -267,6 +273,39 @@ Markdown surrounded by the markdown shortcode will not be rendered by Hugo but b
 {{% /markdown %}}
 ```
 
+### MathJax support
+
+Add the following to `layouts/partials/reveal-hugo/body.html`:
+
+```
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']]
+  },
+  svg: {
+    fontCache: 'global'
+  }
+};
+</script>
+
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+</script>
+```
+
+Then you can do this in a slide:
+
+```
+## Cool equations
+
+Displayed equations are wrapped in double-\$
+
+$$\frac{n!}{k!(n-k)!} = \binom{n}{k}$$  
+
+Inline equations like $E=mc^2$ are wrapped in single-\$
+```
+
 ### HTML slides
 
 If you need to create fancier HTML for a slide than you can do with markdown, just add `data-noprocess` to the &lt;section&gt; element.
@@ -361,6 +400,23 @@ transition = "zoom"
 
 See the [extensive list of Reveal.js configuration options](https://github.com/hakimel/reveal.js/#configuration) here.
 
+### Syntax highlighting
+
+Syntax highlighting can be done with Hugo at compile-time or using Reveal.js with the pre-installed highlight.js plugin. Presentations can use both if they wish for different pieces of code.
+
+To do highlighting with Hugo, use the [highlight shortcode](https://gohugo.io/content-management/syntax-highlighting/#highlight-shortcode) and check out the [hugo-hl-example](https://reveal-hugo.dzello.com/hugo-hl-example/) example presentation.
+
+To see an example of highlighting with Reveal.js, check out the [highlightjs-linenumbers-example](https://reveal-hugo.dzello.com/highlightjs-linenumbers-example/) presentation.
+
+By default, markdown code fences will be processed with Hugo. To turn that off, add this to your `config.toml` file:
+
+``` toml
+[markup.highlight]
+codeFences = false
+```
+
+Now, the code in the fences will be highlighted by highlight.js instead.
+
 ### Custom Reveal.js themes
 
 If you have a custom reveal theme to use (in .css form), place it in the `static` folder and specify it in the configuration. For example, if your css file lives here:
@@ -375,7 +431,7 @@ Then this is what you'll put in `config.toml`:
 
 ```toml
 [params.reveal_hugo]
-reveal_hugo.custom_theme = "stylesheets/custom-theme.css"
+custom_theme = "stylesheets/custom-theme.css"
 ```
 
 ### Compiling a custom Reveal.js theme with Hugo pipes
@@ -391,8 +447,8 @@ Reveal.js theme customization is easiest to do by overriding variables in the SC
 If you just wanted to change the presentation colors, here's what you might put in `custom-theme.scss`:
 
 ```scss
-@import "reveal-js/css/theme/template/mixins";
-@import "reveal-js/css/theme/template/settings";
+@import "../reveal-js/css/theme/template/mixins";
+@import "../reveal-js/css/theme/template/settings";
 
 $backgroundColor: rgb(3, 129, 45);
 $mainColor: #fff;
@@ -405,8 +461,8 @@ This is what the front matter would look like:
 
 ```toml
 [params.reveal_hugo]
-reveal_hugo.custom_theme = "stylesheets/custom-theme.css"
-reveal_hugo.custom_theme_compile = true
+custom_theme = "stylesheets/custom-theme.scss"
+custom_theme_compile = true
 ```
 
 You can also add options that will be passed to [Hugo's toCSS method](https://gohugo.io/hugo-pipes/scss-sass/#options):
@@ -461,7 +517,7 @@ If your Hugo site already has a theme but you'd like to create a presentation fr
 
 ```shell
 cd my-hugo-site
-git clone git@github.com:dzello/reveal-hugo.git themes/reveal-hugo
+git clone https://github.com/dzello/reveal-hugo.git themes/reveal-hugo
 cd themes/reveal-hugo
 cp -r layouts static ../../
 ```
@@ -481,7 +537,7 @@ Now you can add `outputs = ["Reveal"]` to the front matter of any section's `_in
 
 Note: If you specify `outputs = ["Reveal"]` for a single content file, you can prevent anything being generated for that file. This is handy if you other default layouts that would have created a regular HTML file from it. Only the list file is required for the presentation.
 
-**Tip**: As of Hugo 0.42, Hugo [has theme inheritence](https://gohugo.io/news/0.42-relnotes/). You can avoid the file copying step above by adding `"reveal-hugo"` to your site's array of themes.
+**Tip**: As of Hugo 0.42, Hugo [has theme inheritance](https://gohugo.io/news/0.42-relnotes/). You can avoid the file copying step above by adding `"reveal-hugo"` to your site's array of themes.
 
 ### Create a presentation from a leaf bundle or single page type
 
@@ -523,6 +579,7 @@ Find many more on the Reveal.js wiki: [Plugins, tools and hardware](https://gith
 Have you built something with reveal-hugo? Add a link to it here.
 
 - [dzello's Paris Wedding Weekend Guide](https://estelle.and.dzello.com/guide/) ([source](https://github.com/dzello/estelle-and-josh/blob/master/site/content/guide/_index.md))
+- [DevOps Training](https://devops.training.barpilot.io/) ([source](https://github.com/guilhem/devops-training))
 
 
 ## Changelog
