@@ -3,14 +3,56 @@ title = "My presentation"
 outputs = ["Reveal"]
 +++
 
-# grpc vs connect 
+---
+
+# Let's build a grpc app
 
 ---
 
-# grpc
+{{< figure src="gh.drawio.4.svg" height=600 >}}
+
+--- 
+
+```diff
+grpc
+├── proto
+│   └── eliza.proto
++ ├── backend
++ │   └── main.go
++ │       └── pkg
++ │           └── gen
++ │               └── proto
++ │                   └── elizav1
++ │                       ├── eliza.pb.go
++ │                       └── eliza_grpc.pb.go
+```
 
 ---
-# protoc-gen-js
+
+
+{{< figure src="gh.drawio.3.svg" height=600 >}}
+
+--- 
+
+```diff
+grpc
++ ├── Makefile
+├── proto
+│   └── eliza.proto
+├── backend
+│   └── main.go
+│       └── pkg
+│           └── gen
+│               └── proto
+│                   └── elizav1
+│                       ├── eliza.pb.go
+│                       └── eliza_grpc.pb.go
+
+```
+
+---
+
+{{< figure src="gh.drawio.2.svg" height=600 >}}
 
 ---
 # protoc-gen-js
@@ -38,9 +80,47 @@ outputs = ["Reveal"]
 
 ---
 
+{{< figure src="gh.drawio.1.svg" height=600 >}}
+
+---
+
+```diff
+grpc
++ ├── envoy.yaml
++ ├── docker-compose.yaml
+├── Makefile
+├── proto
+│   └── eliza.proto
+├── backend
+│   └── main.go
+│       └── pkg
+│           └── gen
+│               └── proto
+│                   └── elizav1
+│                       ├── eliza.pb.go
+│                       └── eliza_grpc.pb.go
++ └── frontend
++     └── src
++         └── gen
++             ├── eliza_grpc_web_pb.js
++             ├── eliza_pb.d.ts
++             ├── eliza_pb.js
++             └── ElizaServiceClientPb.ts
+```
+
+
+---
+
+{{< figure src="gh.drawio.0.svg" height=600 >}}
+
+
+
+---
+
 # protoc-gen-grpc-web
 ```
-import { SayRequest, IntroduceRequest } from './gen/eliza_pb' import not found: IntroduceRequest
+import { SayRequest, IntroduceRequest } 
+from './gen/eliza_pb' import not found: IntroduceRequest
 ```
 
 ---
@@ -49,8 +129,38 @@ import { SayRequest, IntroduceRequest } from './gen/eliza_pb' import not found: 
 ![img_2.png](img_2.png)
 
 
+---
+# Finally
 
-What about connect?
+[it works](http://localhost:3002)
+
+```diff
+grpc
+├── envoy.yaml
+├── docker-compose.yaml
+├── Makefile
+├── proto
+│   └── eliza.proto
+├── backend
+│   └── main.go
+│       └── pkg
+│           └── gen
+│               └── proto
+│                   └── elizav1
+│                       ├── eliza.pb.go
+│                       └── eliza_grpc.pb.go
+└── frontend
+    └── src
+        └── gen
+            ├── eliza_grpc_web_pb.js
+            ├── eliza_pb.d.ts
+            ├── eliza_pb.js
+            └── ElizaServiceClientPb.ts
+```
+
+--- 
+
+### What about connect?
 
 - let's get rid of protoc too
   - no Makefile
@@ -60,6 +170,18 @@ What about connect?
 - no need for envoy
   - no envoy.yaml
   - no docker-comopose.yaml
+
+--- 
+
+## What about the buf ecosystem?
+
+
+- ~~protoc~~
+- ~~Makefile~~ -> managed packages
+- ~~grpc, grpc-web, protoc-gen-grpc-gateway~~ -> connect
+- ~~envoy-proxy~~
+- ~~protoc-gen-js + protoc-gen-grpc-web~~ -> protoc-gen-es, protoc-gen-connect-web
+
 
 ---
 
@@ -88,6 +210,8 @@ connect
 -             ├── eliza_pb.js
 -             └── ElizaServiceClientPb.ts
 ```
+
+---
 
 # Where are the differences ?
 
@@ -183,98 +307,70 @@ connect
 - 	protoc -I././proto/ --grpc-web_out=import_style=typescript,,mode=grpcwebtext:frontend/src/gen eliza.proto
 ```
 
-
-- grpc[]
-- proto[]
-- makefile[]
-- then you search a little further, and find out that you can't use it in a browser
-- desperate for a solution you start searching github and come across github.com/grpc/grpc-web
-- with this solution the recommended solution is using an envoy proxy, so you spin up an envoy proxy[], envoy config[]
-- the grpc-web implementation states that you need to use protoc-gen-js: ![img_3.png](img_3.png)
-- You try to install protoc-gen-js, but in the Issues and on the README you see that it's in a broken state, but it will be fixed by September 2022
-- You see that in an issue the solution is to install an old version of protoc that still has protoc-gen-js
-- old version of protoc[]
-- protoc-gen-grpc-web[]
-- After this ends you spend a little time figuring out which version of protoc can work with which version of grpc-web
-```bash
-import { LoginRequest } from '../protos/login_pb'; 
-```
-- this takes way too long
-
-Once this is completed you can finally run your react app, but then you get another error that you've already come across, but turns out grpc-web's weird imports mean that it doesn't work properly with a `Vite+Typescript` app.
-![img_4.png](img_4.png)
-- so instead you change your app to use another serving framework
-- 
-
 ---
 
 
-```mermaid
-graph TD;
-protoc---protoc-gen-go
-protoc---protoc-gen-grpc-go
-protoc---Makefile;
-protoc---grpc
-grpc---grpc-web
-grpc-web---proco-gen-js?
-protoc-gen-grpc-gateway---protoc
-protoc-gen-grpc-gateway---grpc
-envoy-proxy---grpc
-envoy-proxy---grpc-web
-protoc-gen-grpc-gateway---Makefile
-protoc-gen-js---Makefile
-protoc-gen-js?---protoc
-```
-
---- 
-
-Now we can finally run it
-
-# What do we have
 ```diff
-grpc
-├── envoy.yaml
-├── docker-compose.yaml
-├── Makefile
-├── proto
-│   └── eliza.proto
-├── backend
-│   └── main.go
-│       └── pkg
-│           └── gen
-│               └── proto
-│                   └── elizav1
-│                       ├── eliza.pb.go
-│                       └── eliza_grpc.pb.go
-└── frontend
-    └── src
-        └── gen
-            ├── eliza_grpc_web_pb.js
-            ├── eliza_pb.d.ts
-            ├── eliza_pb.js
-            └── ElizaServiceClientPb.ts
-```
---- 
+                             files          blank        comment           code
+-------------------------------------------------------------------------------
+SUM:
+ same                            4              4             22             63
+ modified                        1              0              0             46
+ added                           0              0              0             34
+ removed                        11            348            734           1552
 
---- 
-
-
-## What about the buf ecosystem?
-
-
-- ~~protoc~~
-- ~~Makefile~~ managed packages
-- ~~grpc, grpc-web, protoc-gen-grpc-gateway~~ connect
-- ~~envoy-proxy~~
-- ~~protoc-gen-js + protoc-gen-grpc-web~~ protoc-gen-es, protoc-gen-connect-web
-
---- 
-
-## What about the buf ecosystem?
-
-```mermaid
-graph TD;
 
 ```
 
+
 --- 
+
+
+```diff
+cloc --exclude-dir=node_modules --include-ext=go,js,ts,proto,yaml,Makefile --diff grpc connect
+
+      32 text files.
+classified 30 files
+      19 text files.
+classified 17 files
+ 1:        1 unique file.                          
+ 2:        2 unique files.                          
+      34 files ignored.                           
+
+github.com/AlDanial/cloc v 1.94  T=0.02 s (776.9 files/s, 136106.8 lines/s)
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+Go
+ same                            0              0             16             42
+ modified                        1              0              0             46
+ added                           0              0              0             34
+ removed                         2             92             65            629
+JavaScript
+ same                            1              2              1              7
+ modified                        0              0              0              0
+ added                           0              0              0              0
+ removed                         2            157            516            490
+TypeScript
+ same                            3              2              5             14
+ modified                        0              0              0              0
+ added                           0              0              0              0
+ removed                         4             88            122            340
+YAML
+ same                            0              0              0              0
+ modified                        0              0              0              0
+ added                           0              0              0              0
+ removed                         2              1              0             67
+Protocol Buffers
+ same                            0              0              0              0
+ modified                        0              0              0              0
+ added                           0              0              0              0
+ removed                         1             10             31             26
+-------------------------------------------------------------------------------
+SUM:
+ same                            4              4             22             63
+ modified                        1              0              0             46
+ added                           0              0              0             34
+ removed                        11            348            734           1552
+-------------------------------------------------------------------------------
+```
