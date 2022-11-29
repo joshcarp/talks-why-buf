@@ -3,6 +3,8 @@ title = "My presentation"
 outputs = ["Reveal"]
 +++
 
+# Why buf?
+
 ---
 
 # Let's build a grpc web app
