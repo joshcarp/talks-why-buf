@@ -1,3 +1,0 @@
-
-all: 
-	./deploy.sh

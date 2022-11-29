@@ -5,13 +5,14 @@ outputs = ["Reveal"]
 
 ---
 
-# Let's build a grpc app
+# Let's build a grpc web app
 
 ---
 
 {{< figure src="gh.drawio.4.svg" height=600 >}}
 
---- 
+---
+
 
 ```diff
 grpc
@@ -30,9 +31,12 @@ grpc
 ---
 
 
-{{< figure src="gh.drawio.3.svg" height=600 >}}
+```diff
+protoc -I./proto/ --go_out=paths=source_relative:backend/pkg/gen/proto/elizav1 eliza.proto
+protoc -I././proto/ --go-grpc_out=paths=source_relative:backend/pkg/gen/proto/elizav1 eliza.proto
+```
 
---- 
+---
 
 ```diff
 grpc
@@ -52,10 +56,22 @@ grpc
 
 ---
 
+{{< figure src="gh.drawio.3.svg" height=600 >}}
+
+--- 
+
+![img_5.png](img_5.png)
+
+---
+
 {{< figure src="gh.drawio.2.svg" height=600 >}}
 
 ---
 # protoc-gen-js
+
+![img_6.png](img_6.png)
+
+--- 
 
 - https://github.com/grpc/grpc-web/issues/704 which is a duplicate of
 - https://github.com/protocolbuffers/protobuf-javascript/issues/105 which is a duplicate of
@@ -80,14 +96,10 @@ grpc
 
 ---
 
-{{< figure src="gh.drawio.1.svg" height=600 >}}
-
----
-
 ```diff
 grpc
 + ├── envoy.yaml
-+ ├── docker-compose.yaml
++ ├── envoy.Dockerfile
 ├── Makefile
 ├── proto
 │   └── eliza.proto
@@ -100,6 +112,7 @@ grpc
 │                       ├── eliza.pb.go
 │                       └── eliza_grpc.pb.go
 + └── frontend
++     ├ App.tsx
 +     └── src
 +         └── gen
 +             ├── eliza_grpc_web_pb.js
@@ -108,36 +121,24 @@ grpc
 +             └── ElizaServiceClientPb.ts
 ```
 
+---
+
+{{< figure src="gh.drawio.1.svg" height=600 >}}
 
 ---
 
 {{< figure src="gh.drawio.0.svg" height=600 >}}
 
-
-
 ---
 
-# protoc-gen-grpc-web
-```
-import { SayRequest, IntroduceRequest } 
-from './gen/eliza_pb' import not found: IntroduceRequest
-```
-
----
-# protoc-gen-grpc-web
-
-![img_2.png](img_2.png)
-
-
----
 # Finally
 
-[it works](http://localhost:3002)
+[it works](http://localhost:8073)
 
 ```diff
 grpc
 ├── envoy.yaml
-├── docker-compose.yaml
+├── envoy.Dockerfile
 ├── Makefile
 ├── proto
 │   └── eliza.proto
@@ -150,6 +151,7 @@ grpc
 │                       ├── eliza.pb.go
 │                       └── eliza_grpc.pb.go
 └── frontend
+    ├ App.tsx
     └── src
         └── gen
             ├── eliza_grpc_web_pb.js
@@ -158,39 +160,28 @@ grpc
             └── ElizaServiceClientPb.ts
 ```
 
---- 
-
-### What about connect?
-
-- let's get rid of protoc too
-  - no Makefile
-- let's used managed packages
-  - no .proto files
-  - no need for generated code
-- no need for envoy
-  - no envoy.yaml
-  - no docker-comopose.yaml
-
---- 
-
-## What about the buf ecosystem?
-
-
-- ~~protoc~~
-- ~~Makefile~~ -> managed packages
-- ~~grpc, grpc-web, protoc-gen-grpc-gateway~~ -> connect
-- ~~envoy-proxy~~
-- ~~protoc-gen-js + protoc-gen-grpc-web~~ -> protoc-gen-es, protoc-gen-connect-web
-
-
 ---
+
+# List of issues encountered
+
+- https://github.com/grpc/grpc-web/issues/704
+- https://github.com/grpc/grpc-web/issues/1242
+- https://github.com/grpc/grpc-web/issues/1064
+- https://github.com/protocolbuffers/protobuf-javascript/issues/105
+- https://github.com/protocolbuffers/protobuf-javascript/issues/127
+
+--- 
+
+# What about buf?
+
+--- 
 
 # What do we get?
 
 ```diff
 connect
 - ├── envoy.yaml
-- ├── docker-compose.yaml
+- ├── envoy.Dockerfile
 - ├── Makefile
 - ├── proto
 - │   └── eliza.proto
@@ -203,6 +194,7 @@ connect
 - │                       ├── eliza.pb.go
 - │                       └── eliza_grpc.pb.go
 └── frontend
+    ├ App.tsx
     └── src
 -         └── gen
 -             ├── eliza_grpc_web_pb.js
@@ -217,7 +209,7 @@ connect
 
 ```diff
 - import { ElizaServiceClient } from './gen/ElizaServiceClientPb.js'
-- import { SayRequest, IntroduceRequest } from './gen/eliza_pb'
+- import { IntroduceRequest } from './gen/eliza_pb'
 
 + import { ElizaService } from '@buf/bufbuild_eliza.bufbuild_connect-web/buf/connect/demo/eliza/v1/eliza_connectweb.js'
 + import { IntroduceRequest } from '@buf/bufbuild_eliza.bufbuild_es/buf/connect/demo/eliza/v1/eliza_pb.js'
@@ -229,7 +221,7 @@ connect
 
 ```diff
 - "github.com/joshcarp/grpc-vs-connect/grpc-web/backend/pkg/gen/proto/elizav1"
-+ "buf.build/gen/go/bufbuild/eliza/bufbuild/connect-go/buf/connect/demo/eliza/v1/elizav1connect"
++ "buf.build/gen/go/bufbuild/eliza/bufbuild/why-buf/buf/connect/demo/eliza/v1/elizav1connect"
 + elizav1 "buf.build/gen/go/bufbuild/eliza/protocolbuffers/go/buf/connect/demo/eliza/v1"
 ```
 
@@ -308,6 +300,17 @@ connect
 ```
 
 ---
+```diff
+
+connect
+  ├── backend
+  │   └── main.go
+  └── frontend
+      └── App.tsx
+```
+
+
+---
 
 
 ```diff
@@ -374,3 +377,10 @@ SUM:
  removed                        11            348            734           1552
 -------------------------------------------------------------------------------
 ```
+
+--- 
+
+- No code generation needed
+- No translation proxy needed
+- No build scripts/Makefiles
+- No using outdated tools
