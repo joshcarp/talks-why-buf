@@ -17,6 +17,8 @@ outputs = ["Reveal"]
 
 
 ```diff
+protoc -I./proto/ --go_out=paths=source_relative:backend/pkg/gen/proto/elizav1 eliza.proto
+protoc -I././proto/ --go-grpc_out=paths=source_relative:backend/pkg/gen/proto/elizav1 eliza.proto
 grpc
 ├── proto
 │   └── eliza.proto
@@ -36,6 +38,8 @@ grpc
 ```diff
 protoc -I./proto/ --go_out=paths=source_relative:backend/pkg/gen/proto/elizav1 eliza.proto
 protoc -I././proto/ --go-grpc_out=paths=source_relative:backend/pkg/gen/proto/elizav1 eliza.proto
+protoc -I././proto/ --js_out=import_style=commonjs:frontend/src/gen eliza.proto
+protoc -I././proto/ --grpc-web_out=import_style=typescript,,mode=grpcwebtext:frontend/src/gen eliza.proto
 ```
 
 ---
@@ -142,8 +146,11 @@ grpc
 ├── envoy.yaml
 ├── envoy.Dockerfile
 ├── Makefile
-├── proto
-│   └── eliza.proto
+└── demo
+    └── gen
+        └── eliza
+            └── v1
+                └── eliza.proto
 ├── backend
 │   └── main.go
 │       └── pkg
@@ -164,6 +171,13 @@ grpc
 
 ---
 
+```
+grpcurl --plaintext localhost:8071 buf.connect.demo.eliza.v1.ElizaService/Say
+
+```
+
+---
+
 # List of issues encountered
 
 - https://github.com/grpc/grpc-web/issues/704
@@ -172,9 +186,29 @@ grpc
 - https://github.com/protocolbuffers/protobuf-javascript/issues/105
 - https://github.com/protocolbuffers/protobuf-javascript/issues/127
 
---- 
+---
+
 
 # What about buf?
+
+---
+
+# What about buf?
+
+- `protoc -> buf`
+- `grpc -> connect`
+- ~~envoy~~
+- ~~Makefile~~
+
+---
+
+- [buf.gen.yaml](buf.gen.yamll)
+- [connect-codegen.go](connect-codegen.go)
+- [App.tsx](App.tsx)
+
+---
+
+
 
 --- 
 
@@ -185,49 +219,38 @@ connect
 - ├── envoy.yaml
 - ├── envoy.Dockerfile
 - ├── Makefile
-- ├── proto
-- │   └── eliza.proto
++ ├── buf.gen.yaml
+└── demo
+    └── gen
+        └── eliza
+            └── v1
+                └── eliza.proto
 ├── backend
 │   └── main.go
-- │       └── pkg
-- │           └── gen
-- │               └── proto
-- │                   └── elizav1
-- │                       ├── eliza.pb.go
-- │                       └── eliza_grpc.pb.go
+│            └── gen
+│                └── eliza
+│                    └── v1
+│                       ├── eliza.pb.go
+-                       └── eliza_grpc.pb.go
++                     └───── elizav1connect
++                                 └─────eliza.connect.go
 └── frontend
-    ├ App.tsx
-    └── src
--         └── gen
--             ├── eliza_grpc_web_pb.js
--             ├── eliza_pb.d.ts
--             ├── eliza_pb.js
--             └── ElizaServiceClientPb.ts
+|    ├ App.tsx
+|    └── src
+|          └── gen
+|                └── demo
+|                    └── eliza
+|                        └── v1
++                          ├── eliza_connectweb.ts
++                          ├── eliza_pb.ts
+-                          ├── eliza_grpc_web_pb.js
+-                          ├── eliza_pb.d.ts
+-                          ├── eliza_pb.js
+-                          └── ElizaServiceClientPb.ts
 ```
 
 ---
 
-# Where are the differences ?
-
-```diff
-- import { ElizaServiceClient } from './gen/ElizaServiceClientPb.js'
-- import { IntroduceRequest } from './gen/eliza_pb'
-
-+ import { ElizaService } from '@buf/bufbuild_eliza.bufbuild_connect-web/buf/connect/demo/eliza/v1/eliza_connectweb.js'
-+ import { IntroduceRequest } from '@buf/bufbuild_eliza.bufbuild_es/buf/connect/demo/eliza/v1/eliza_pb.js'
-```
-
---- 
-
-# Where are the differences ?
-
-```diff
-- "github.com/joshcarp/grpc-vs-connect/grpc-web/backend/pkg/gen/proto/elizav1"
-+ "buf.build/gen/go/bufbuild/eliza/bufbuild/why-buf/buf/connect/demo/eliza/v1/elizav1connect"
-+ elizav1 "buf.build/gen/go/bufbuild/eliza/protocolbuffers/go/buf/connect/demo/eliza/v1"
-```
-
----
 
 # Where are the differences ?
 ```diff 
@@ -300,6 +323,99 @@ connect
 - 	protoc -I././proto/ --js_out=import_style=commonjs:frontend/src/gen eliza.proto
 - 	protoc -I././proto/ --grpc-web_out=import_style=typescript,,mode=grpcwebtext:frontend/src/gen eliza.proto
 ```
+
+--- 
+
+
+
+```go
+
+grpcurl --plaintext localhost:8091 buf.connect.demo.eliza.v1.ElizaService/Say
+
+curl --header 'Content-Type: application/json' --data '{"sentence": ""}' http://localhost:8091/buf.connect.demo.eliza.v1.ElizaService/Say
+
+
+```
+
+---
+
+{{< figure src="gh.drawio.5.svg" height=600 >}}
+
+---
+
+# Let's delete more code
+
+- using [buf.build/bufbuild/eliza](https://buf.build/bufbuild/eliza) instead of codegen
+--- 
+
+# What do we get?
+
+```diff
+connect
+- ├── envoy.yaml
+- ├── envoy.Dockerfile
+- ├── Makefile
+- ├── buf.gen.yaml
+- └── demo
+-     └── gen
+-         └── eliza
+-             └── v1
+-                 └── eliza.proto
+├── backend
+│   └── main.go
+- │       └── pkg
+- │           └── gen
+- │               └── proto
+- │                   └── elizav1
+- │                       ├── eliza.pb.go
+- │                       └── eliza_grpc.pb.go
+└── frontend
+    ├ App.tsx
+    └── src
+-         └── gen
+-             ├── eliza_grpc_web_pb.js
+-             ├── eliza_pb.d.ts
+-             ├── eliza_pb.js
+-             └── ElizaServiceClientPb.ts
+```
+
+---
+
+```diff
+
+connect
+  ├── backend
+  │   └── main.go
+  └── frontend
+      └── App.tsx
+```
+
+{{< figure src="gh.drawio.6.svg" height=300 >}}
+
+---
+
+# Where are the differences ?
+
+```diff
+- import { ElizaServiceClient } from './gen/ElizaServiceClientPb.js'
+- import { IntroduceRequest } from './gen/eliza_pb'
+
++ import { ElizaService } from '@buf/bufbuild_eliza.bufbuild_connect-web/buf/connect/demo/eliza/v1/eliza_connectweb.js'
++ import { IntroduceRequest } from '@buf/bufbuild_eliza.bufbuild_es/buf/connect/demo/eliza/v1/eliza_pb.js'
+```
+
+--- 
+
+# Where are the differences ?
+
+```diff
+- "github.com/joshcarp/grpc-vs-connect/grpc-web/backend/pkg/gen/proto/elizav1"
++ "buf.build/gen/go/bufbuild/eliza/bufbuild/why-buf/buf/connect/demo/eliza/v1/elizav1connect"
++ elizav1 "buf.build/gen/go/bufbuild/eliza/protocolbuffers/go/buf/connect/demo/eliza/v1"
+```
+
+---
+
 
 ---
 ```diff

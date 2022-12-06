@@ -20,14 +20,17 @@
       <div class="slides">
   
 
-    <section></section><section>
+    <section><h1 id="why-buf">Why buf?</h1>
+</section><section>
 <h1 id="lets-build-a-grpc-web-app">Let&rsquo;s build a grpc web app</h1>
 </section><section>
 <figure><img src="gh.drawio.4.svg" height="600"/>
 </figure>
 
 </section><section>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="nohighlight" data-noescape><span style="display:flex;"><span>grpc
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="nohighlight" data-noescape><span style="display:flex;"><span>protoc -I./proto/ --go_out=paths=source_relative:backend/pkg/gen/proto/elizav1 eliza.proto
+</span></span><span style="display:flex;"><span>protoc -I././proto/ --go-grpc_out=paths=source_relative:backend/pkg/gen/proto/elizav1 eliza.proto
+</span></span><span style="display:flex;"><span>grpc
 </span></span><span style="display:flex;"><span>├── proto
 </span></span><span style="display:flex;"><span>│   └── eliza.proto
 </span></span><span style="display:flex;"><span><span style="color:#a6e22e">+ ├── backend
@@ -41,6 +44,8 @@
 </span></span></span></code></pre></div></section><section>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="nohighlight" data-noescape><span style="display:flex;"><span>protoc -I./proto/ --go_out=paths=source_relative:backend/pkg/gen/proto/elizav1 eliza.proto
 </span></span><span style="display:flex;"><span>protoc -I././proto/ --go-grpc_out=paths=source_relative:backend/pkg/gen/proto/elizav1 eliza.proto
+</span></span><span style="display:flex;"><span>protoc -I././proto/ --js_out=import_style=commonjs:frontend/src/gen eliza.proto
+</span></span><span style="display:flex;"><span>protoc -I././proto/ --grpc-web_out=import_style=typescript,,mode=grpcwebtext:frontend/src/gen eliza.proto
 </span></span></code></pre></div></section><section>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="nohighlight" data-noescape><span style="display:flex;"><span>grpc
 </span></span><span style="display:flex;"><span><span style="color:#a6e22e">+ ├── Makefile
@@ -124,8 +129,11 @@
 </span></span><span style="display:flex;"><span>├── envoy.yaml
 </span></span><span style="display:flex;"><span>├── envoy.Dockerfile
 </span></span><span style="display:flex;"><span>├── Makefile
-</span></span><span style="display:flex;"><span>├── proto
-</span></span><span style="display:flex;"><span>│   └── eliza.proto
+</span></span><span style="display:flex;"><span>└── demo
+</span></span><span style="display:flex;"><span>    └── gen
+</span></span><span style="display:flex;"><span>        └── eliza
+</span></span><span style="display:flex;"><span>            └── v1
+</span></span><span style="display:flex;"><span>                └── eliza.proto
 </span></span><span style="display:flex;"><span>├── backend
 </span></span><span style="display:flex;"><span>│   └── main.go
 </span></span><span style="display:flex;"><span>│       └── pkg
@@ -143,6 +151,8 @@
 </span></span><span style="display:flex;"><span>            ├── eliza_pb.js
 </span></span><span style="display:flex;"><span>            └── ElizaServiceClientPb.ts
 </span></span></code></pre></div></section><section>
+<pre tabindex="0"><code>grpcurl --plaintext localhost:8071 buf.connect.demo.eliza.v1.ElizaService/Say
+</code></pre></section><section>
 <h1 id="list-of-issues-encountered">List of issues encountered</h1>
 <ul>
 <li><a href="https://github.com/grpc/grpc-web/issues/704">https://github.com/grpc/grpc-web/issues/704</a></li>
@@ -154,43 +164,56 @@
 </section><section>
 <h1 id="what-about-buf">What about buf?</h1>
 </section><section>
+<h1 id="what-about-buf-1">What about buf?</h1>
+<ul>
+<li><code>protoc -&gt; buf</code></li>
+<li><code>grpc -&gt; connect</code></li>
+<li><del>envoy</del></li>
+<li><del>Makefile</del></li>
+</ul>
+</section><section>
+<ul>
+<li><a href="buf.gen.yamll">buf.gen.yaml</a></li>
+<li><a href="connect-codegen.go">connect-codegen.go</a></li>
+<li><a href="App.tsx">App.tsx</a></li>
+</ul>
+</section><section>
+</section><section>
 <h1 id="what-do-we-get">What do we get?</h1>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="nohighlight" data-noescape><span style="display:flex;"><span>connect
 </span></span><span style="display:flex;"><span><span style="color:#f92672">- ├── envoy.yaml
 </span></span></span><span style="display:flex;"><span><span style="color:#f92672">- ├── envoy.Dockerfile
 </span></span></span><span style="display:flex;"><span><span style="color:#f92672">- ├── Makefile
-</span></span></span><span style="display:flex;"><span><span style="color:#f92672">- ├── proto
-</span></span></span><span style="display:flex;"><span><span style="color:#f92672">- │   └── eliza.proto
-</span></span></span><span style="display:flex;"><span><span style="color:#f92672"></span>├── backend
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672"></span><span style="color:#a6e22e">+ ├── buf.gen.yaml
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e"></span>└── demo
+</span></span><span style="display:flex;"><span>    └── gen
+</span></span><span style="display:flex;"><span>        └── eliza
+</span></span><span style="display:flex;"><span>            └── v1
+</span></span><span style="display:flex;"><span>                └── eliza.proto
+</span></span><span style="display:flex;"><span>├── backend
 </span></span><span style="display:flex;"><span>│   └── main.go
-</span></span><span style="display:flex;"><span><span style="color:#f92672">- │       └── pkg
-</span></span></span><span style="display:flex;"><span><span style="color:#f92672">- │           └── gen
-</span></span></span><span style="display:flex;"><span><span style="color:#f92672">- │               └── proto
-</span></span></span><span style="display:flex;"><span><span style="color:#f92672">- │                   └── elizav1
-</span></span></span><span style="display:flex;"><span><span style="color:#f92672">- │                       ├── eliza.pb.go
-</span></span></span><span style="display:flex;"><span><span style="color:#f92672">- │                       └── eliza_grpc.pb.go
-</span></span></span><span style="display:flex;"><span><span style="color:#f92672"></span>└── frontend
-</span></span><span style="display:flex;"><span>    ├ App.tsx
-</span></span><span style="display:flex;"><span>    └── src
-</span></span><span style="display:flex;"><span><span style="color:#f92672">-         └── gen
-</span></span></span><span style="display:flex;"><span><span style="color:#f92672">-             ├── eliza_grpc_web_pb.js
-</span></span></span><span style="display:flex;"><span><span style="color:#f92672">-             ├── eliza_pb.d.ts
-</span></span></span><span style="display:flex;"><span><span style="color:#f92672">-             ├── eliza_pb.js
-</span></span></span><span style="display:flex;"><span><span style="color:#f92672">-             └── ElizaServiceClientPb.ts
+</span></span><span style="display:flex;"><span>│            └── gen
+</span></span><span style="display:flex;"><span>│                └── eliza
+</span></span><span style="display:flex;"><span>│                    └── v1
+</span></span><span style="display:flex;"><span>│                       ├── eliza.pb.go
+</span></span><span style="display:flex;"><span><span style="color:#f92672">-                       └── eliza_grpc.pb.go
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672"></span><span style="color:#a6e22e">+                     └───── elizav1connect
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">+                                 └─────eliza.connect.go
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e"></span>└── frontend
+</span></span><span style="display:flex;"><span>|    ├ App.tsx
+</span></span><span style="display:flex;"><span>|    └── src
+</span></span><span style="display:flex;"><span>|          └── gen
+</span></span><span style="display:flex;"><span>|                └── demo
+</span></span><span style="display:flex;"><span>|                    └── eliza
+</span></span><span style="display:flex;"><span>|                        └── v1
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">+                          ├── eliza_connectweb.ts
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">+                          ├── eliza_pb.ts
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e"></span><span style="color:#f92672">-                          ├── eliza_grpc_web_pb.js
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672">-                          ├── eliza_pb.d.ts
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672">-                          ├── eliza_pb.js
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672">-                          └── ElizaServiceClientPb.ts
 </span></span></span></code></pre></div></section><section>
 <h1 id="where-are-the-differences-">Where are the differences ?</h1>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="nohighlight" data-noescape><span style="display:flex;"><span><span style="color:#f92672">- import { ElizaServiceClient } from &#39;./gen/ElizaServiceClientPb.js&#39;
-</span></span></span><span style="display:flex;"><span><span style="color:#f92672">- import { IntroduceRequest } from &#39;./gen/eliza_pb&#39;
-</span></span></span><span style="display:flex;"><span><span style="color:#f92672"></span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">+ import { ElizaService } from &#39;@buf/bufbuild_eliza.bufbuild_connect-web/buf/connect/demo/eliza/v1/eliza_connectweb.js&#39;
-</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">+ import { IntroduceRequest } from &#39;@buf/bufbuild_eliza.bufbuild_es/buf/connect/demo/eliza/v1/eliza_pb.js&#39;
-</span></span></span></code></pre></div></section><section>
-<h1 id="where-are-the-differences--1">Where are the differences ?</h1>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="nohighlight" data-noescape><span style="display:flex;"><span><span style="color:#f92672">- &#34;github.com/joshcarp/grpc-vs-connect/grpc-web/backend/pkg/gen/proto/elizav1&#34;
-</span></span></span><span style="display:flex;"><span><span style="color:#f92672"></span><span style="color:#a6e22e">+ &#34;buf.build/gen/go/bufbuild/eliza/bufbuild/why-buf/buf/connect/demo/eliza/v1/elizav1connect&#34;
-</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">+ elizav1 &#34;buf.build/gen/go/bufbuild/eliza/protocolbuffers/go/buf/connect/demo/eliza/v1&#34;
-</span></span></span></code></pre></div></section><section>
-<h1 id="where-are-the-differences--2">Where are the differences ?</h1>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="nohighlight" data-noescape><span style="display:flex;"><span><span style="color:#f92672">- # envoy.yaml
 </span></span></span><span style="display:flex;"><span><span style="color:#f92672">---
 </span></span></span><span style="display:flex;"><span><span style="color:#f92672">- admin:
@@ -247,7 +270,7 @@
 </span></span></span><span style="display:flex;"><span><span style="color:#f92672">-             address: backend
 </span></span></span><span style="display:flex;"><span><span style="color:#f92672">-             port_value: 8081
 </span></span></span></code></pre></div></section><section>
-<h1 id="where-are-the-differences--3">Where are the differences ?</h1>
+<h1 id="where-are-the-differences--1">Where are the differences ?</h1>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="nohighlight" data-noescape><span style="display:flex;"><span><span style="color:#f92672">- # Makefile
 </span></span></span><span style="display:flex;"><span><span style="color:#f92672">- proto:
 </span></span></span><span style="display:flex;"><span><span style="color:#f92672">- 	protoc -I./proto/ --go_out=paths=source_relative:backend/pkg/gen/proto/elizav1 eliza.proto
@@ -255,6 +278,71 @@
 </span></span></span><span style="display:flex;"><span><span style="color:#f92672">- 	protoc -I././proto/ --js_out=import_style=commonjs:frontend/src/gen eliza.proto
 </span></span></span><span style="display:flex;"><span><span style="color:#f92672">- 	protoc -I././proto/ --grpc-web_out=import_style=typescript,,mode=grpcwebtext:frontend/src/gen eliza.proto
 </span></span></span></code></pre></div></section><section>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="nohighlight" data-noescape><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">grpcurl</span> <span style="color:#f92672">--</span><span style="color:#a6e22e">plaintext</span> <span style="color:#a6e22e">localhost</span>:<span style="color:#ae81ff">8091</span> <span style="color:#a6e22e">buf</span>.<span style="color:#a6e22e">connect</span>.<span style="color:#a6e22e">demo</span>.<span style="color:#a6e22e">eliza</span>.<span style="color:#a6e22e">v1</span>.<span style="color:#a6e22e">ElizaService</span><span style="color:#f92672">/</span><span style="color:#a6e22e">Say</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">curl</span> <span style="color:#f92672">--</span><span style="color:#a6e22e">header</span> <span style="color:#960050;background-color:#1e0010">&#39;</span><span style="color:#a6e22e">Content</span><span style="color:#f92672">-</span><span style="color:#a6e22e">Type</span>: <span style="color:#a6e22e">application</span><span style="color:#f92672">/</span><span style="color:#a6e22e">json</span><span style="color:#960050;background-color:#1e0010">&#39;</span> <span style="color:#f92672">--</span><span style="color:#a6e22e">data</span> <span style="color:#960050;background-color:#1e0010">&#39;</span>{<span style="color:#e6db74">&#34;sentence&#34;</span>: <span style="color:#e6db74">&#34;&#34;</span>}<span style="color:#960050;background-color:#1e0010">&#39;</span> <span style="color:#a6e22e">http</span>:<span style="color:#75715e">//localhost:8091/buf.connect.demo.eliza.v1.ElizaService/Say
+</span></span></span></code></pre></div></section><section>
+<figure><img src="gh.drawio.5.svg" height="600"/>
+</figure>
+
+</section><section>
+<h1 id="lets-delete-more-code">Let&rsquo;s delete more code</h1>
+<ul>
+<li>using <a href="https://buf.build/bufbuild/eliza">buf.build/bufbuild/eliza</a> instead of codegen</li>
+</ul>
+</section><section>
+<h1 id="what-do-we-get-1">What do we get?</h1>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="nohighlight" data-noescape><span style="display:flex;"><span>connect
+</span></span><span style="display:flex;"><span><span style="color:#f92672">- ├── envoy.yaml
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672">- ├── envoy.Dockerfile
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672">- ├── Makefile
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672">- ├── buf.gen.yaml
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672">- └── demo
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672">-     └── gen
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672">-         └── eliza
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672">-             └── v1
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672">-                 └── eliza.proto
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672"></span>├── backend
+</span></span><span style="display:flex;"><span>│   └── main.go
+</span></span><span style="display:flex;"><span><span style="color:#f92672">- │       └── pkg
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672">- │           └── gen
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672">- │               └── proto
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672">- │                   └── elizav1
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672">- │                       ├── eliza.pb.go
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672">- │                       └── eliza_grpc.pb.go
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672"></span>└── frontend
+</span></span><span style="display:flex;"><span>    ├ App.tsx
+</span></span><span style="display:flex;"><span>    └── src
+</span></span><span style="display:flex;"><span><span style="color:#f92672">-         └── gen
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672">-             ├── eliza_grpc_web_pb.js
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672">-             ├── eliza_pb.d.ts
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672">-             ├── eliza_pb.js
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672">-             └── ElizaServiceClientPb.ts
+</span></span></span></code></pre></div></section><section>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="nohighlight" data-noescape><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>connect
+</span></span><span style="display:flex;"><span>  ├── backend
+</span></span><span style="display:flex;"><span>  │   └── main.go
+</span></span><span style="display:flex;"><span>  └── frontend
+</span></span><span style="display:flex;"><span>      └── App.tsx
+</span></span></code></pre></div><figure><img src="gh.drawio.6.svg" height="300"/>
+</figure>
+
+</section><section>
+<h1 id="where-are-the-differences--2">Where are the differences ?</h1>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="nohighlight" data-noescape><span style="display:flex;"><span><span style="color:#f92672">- import { ElizaServiceClient } from &#39;./gen/ElizaServiceClientPb.js&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672">- import { IntroduceRequest } from &#39;./gen/eliza_pb&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672"></span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">+ import { ElizaService } from &#39;@buf/bufbuild_eliza.bufbuild_connect-web/buf/connect/demo/eliza/v1/eliza_connectweb.js&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">+ import { IntroduceRequest } from &#39;@buf/bufbuild_eliza.bufbuild_es/buf/connect/demo/eliza/v1/eliza_pb.js&#39;
+</span></span></span></code></pre></div></section><section>
+<h1 id="where-are-the-differences--3">Where are the differences ?</h1>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="nohighlight" data-noescape><span style="display:flex;"><span><span style="color:#f92672">- &#34;github.com/joshcarp/grpc-vs-connect/grpc-web/backend/pkg/gen/proto/elizav1&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672"></span><span style="color:#a6e22e">+ &#34;buf.build/gen/go/bufbuild/eliza/bufbuild/why-buf/buf/connect/demo/eliza/v1/elizav1connect&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">+ elizav1 &#34;buf.build/gen/go/bufbuild/eliza/protocolbuffers/go/buf/connect/demo/eliza/v1&#34;
+</span></span></span></code></pre></div></section><section>
+</section><section>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="nohighlight" data-noescape><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>connect
 </span></span><span style="display:flex;"><span>  ├── backend

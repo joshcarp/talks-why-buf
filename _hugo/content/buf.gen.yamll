@@ -1,0 +1,14 @@
+version: v1
+plugins:
+  - plugin: buf.build/bufbuild/connect-go # remote plugins so there's no need to install locally
+    out: backend/gen # output directory
+    opt: paths=source_relative # options that usually get passed in with --go_out=paths=source_relative:backend
+  - plugin: buf.build/protocolbuffers/go
+    out: backend/gen
+    opt: paths=source_relative
+  - plugin: buf.build/bufbuild/es
+    out: frontend/src/gen
+    opt: target=ts
+  - plugin: buf.build/bufbuild/connect-web
+    out: frontend/src/gen
+    opt: target=ts
