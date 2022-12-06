@@ -346,6 +346,7 @@ curl --header 'Content-Type: application/json' --data '{"sentence": ""}' http://
 # Let's delete more code
 
 - using [buf.build/bufbuild/eliza](https://buf.build/bufbuild/eliza) instead of codegen
+
 --- 
 
 # What do we get?
