@@ -2,6 +2,12 @@
 title = "why buf"
 outputs = ["Reveal"]
 +++
+---
+
+- [joshcarp.com/talks-why-buf](https://joshcarp.com/talks-why-buf)
+- [github.com/joshcarp](https://github.com/joshcarp)
+- [buf.build](https://buf.build)
+- [connect.build](https://connect.build)
 
 # Why buf?
 
@@ -503,3 +509,10 @@ SUM:
 - No translation proxy needed
 - No build scripts/Makefiles
 - No using outdated tools
+
+---
+
+- [joshcarp.com/talks-why-buf](https://joshcarp.com/talks-why-buf)
+- [github.com/joshcarp](https://github.com/joshcarp)
+- [buf.build](https://buf.build)
+- [connect.build](https://connect.build)
